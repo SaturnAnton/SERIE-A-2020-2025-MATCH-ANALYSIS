@@ -10,7 +10,7 @@ def closeFile(fil):
 
 
 def stampaPartite (sc,sa):
-    file = "matches_serie_A.csv"
+    file = "data/matches_serie_A.csv"
     f = openFile(file)
     
     riga = f.readline()
@@ -41,7 +41,7 @@ def stampaPartite (sc,sa):
 
         squadra_scelta = new.strip()
 
-        if (sc == squadra_scelta and sa == squadra_avversaria) or (sa == squadra_scelta and sc == squadra_avversaria) :
+        if (sc == squadra_scelta and sa == squadra_avversaria) :
             if(posto == 'Away') :
                 print(data + " " + squadra_avversaria + "-" + squadra_scelta + " Punteggio finale: " + gol_avversari + "-" + gol_squadra)
             else:
@@ -52,7 +52,7 @@ def stampaPartite (sc,sa):
     closeFile(f)
 
 def stampaPartitaSingola(sc,sa,stagione) :
-    file = "matches_serie_A.csv"
+    file = "data/matches_serie_A.csv"
     f = openFile(file)
     
     riga = f.readline()
