@@ -1,4 +1,6 @@
 import os
+import matplotlib.pyplot as plt
+import numpy as np
 
 def openFile(filename):
     base_path = os.path.dirname(os.path.abspath(__file__))
@@ -11,6 +13,9 @@ def closeFile(fil):
 
 def stampaPartite(sc, sa):
     f = openFile("matches_serie_A.csv")
+    val_sq = 0
+    val_avv = 0
+    val_equal = 0
     
     riga = f.readline()
     while riga != "":
@@ -40,15 +45,34 @@ def stampaPartite(sc, sa):
 
         squadra_scelta = new.strip()
 
-        if sc == squadra_scelta and sa == squadra_avversaria:
-            if posto == 'Away':
-                print(f"{data} {squadra_avversaria}-{squadra_scelta} Punteggio finale: {gol_avversari}-{gol_squadra}")
+        if (sc == squadra_scelta and sa == squadra_avversaria) :
+            if(posto == 'Away') :
+                print(data + " " + squadra_avversaria + "-" + squadra_scelta + " Punteggio finale: " + gol_avversari + "-" + gol_squadra)
             else:
-                print(f"{data} {squadra_scelta}-{squadra_avversaria} Punteggio finale: {gol_squadra}-{gol_avversari}")
+                print(data + " " + squadra_scelta + "-" + squadra_avversaria + " Punteggio finale: " + gol_squadra + "-" + gol_avversari)
+            
+            if(int(gol_squadra) > int(gol_avversari)):
+                val_sq = val_sq + 1
+            elif(int(gol_avversari) > int(gol_squadra)):
+                val_avv = val_avv + 1
+            else:
+                val_equal = val_equal + 1  
 
         riga = f.readline()
 
     closeFile(f)
+
+    y = np.array([val_sq, val_avv, val_equal])
+    labels = [sc, sa, "Pareggio"]
+
+    def make_label(pct, allvals):
+        total = sum(allvals)
+        val = int(round(pct*total/100.0))
+        return f"{val} ({pct:.1f}%)"
+
+    plt.pie(y, labels=labels, autopct=lambda pct: make_label(pct, y))
+    plt.axis('equal')
+    plt.show()
 
 def stampaPartitaSingola(sc, sa, stagione):
     f = openFile("matches_serie_A.csv")
@@ -84,7 +108,7 @@ def stampaPartitaSingola(sc, sa, stagione):
         squadra_scelta = new.strip()
 
         if sc == squadra_scelta and sa == squadra_avversaria and s == stagione and posto == 'Home':
-            print(f"{data} {squadra_scelta}-{squadra_avversaria} Punteggio finale: {gol_squadra}-{gol_avversari}")
+            print(data + " " + squadra_scelta + "-" + squadra_avversaria + " Punteggio finale: " + gol_squadra + "-" + gol_avversari)
 
         riga = f.readline()
 
