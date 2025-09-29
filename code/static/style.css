@@ -1,0 +1,130 @@
+/* 
+ * FILE: static/style.css
+ * SCOPO: Gestire tutto lo stile e il design dell'interfaccia web
+ * CHE COSA FA: Definisce come appare il sito (colori, layout, animazioni)
+ */
+
+/* Reset di base per uniformare lo stile tra browser diversi */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Stile del corpo della pagina */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    /* Sfondo con gradiente colorato invece di grigio piatto */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh; /* Altezza minima tutta la viewport */
+}
+
+/* Contenitore principale che centra tutto */
+.container {
+    max-width: 600px; /* Larghezza massima */
+    margin: 40px auto; /* Centra orizzontalmente */
+    background: white; /* Sfondo bianco per il form */
+    padding: 40px; /* Spaziatura interna */
+    border-radius: 15px; /* Angoli arrotondati */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2); /* Ombra per effetto 3D */
+}
+
+/* Titolo principale */
+h1 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.2em;
+    font-weight: 300; /* Testo più leggero */
+}
+
+/* Aggiunge l'emoji del pallone prima del titolo */
+h1::before {
+    content: "⚽";
+    margin-right: 10px;
+}
+
+/* Gruppi di form (etichetta + input) */
+.form-group {
+    margin: 20px 0;
+}
+
+/* Etichette dei campi */
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #34495e;
+}
+
+/* Input e select */
+input, select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e8eeef;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s ease; /* Animazione fluida */
+}
+
+/* Effetto quando l'input è selezionato */
+input:focus, select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); /* Alone blu */
+}
+
+/* Bottone di analisi */
+button {
+    /* Gradiente invece di colore piatto */
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    padding: 15px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 18px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+/* Effetto hover sul bottone */
+button:hover {
+    transform: translateY(-2px); /* Si alza leggermente */
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4); /* Ombra più evidente */
+}
+
+/* Area dei risultati */
+.result {
+    margin-top: 25px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    white-space: pre-line; /* Mantiene i a capo dal testo */
+    border-left: 4px solid #3498db; /* Bordo colorato a sinistra */
+    animation: fadeIn 0.5s ease; /* Animazione di entrata */
+}
+
+/* Animazione per far apparire i risultati gradualmente */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Stile per il messaggio di caricamento */
+.loading {
+    text-align: center;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+/* Stile per i messaggi di errore */
+.error {
+    background: #ffeaa7;
+    border-left-color: #fdcb6e;
+    color: #d63031;
+}

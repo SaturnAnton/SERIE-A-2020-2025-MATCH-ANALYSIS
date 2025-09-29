@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisi Serie A</title>
+    <!-- COLLEGAMENTO AL FILE CSS ESTERNO -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- CONTENITORE PRINCIPALE -->
+    <div class="container">
+        <h1>Analisi Serie A 2020-2025</h1>
+        
+        <!-- FORM PRINCIPALE -->
+        <form id="analysisForm">
+            <!-- SELEZIONE AZIONE -->
+            <div class="form-group">
+                <label for="action">Azione:</label>
+                <select name="action" id="action" onchange="toggleFields()">
+                    <option value="1">Ultimi confronti tra squadre</option>
+                    <option value="2">Risultato partita specifica</option>
+                </select>
+            </div>
+            
+            <!-- SQUADRA 1 -->
+            <div class="form-group">
+                <label id="team1Label" for="team1">Prima squadra:</label>
+                <input type="text" name="team1" id="team1" placeholder="Es: Milan" required>
+            </div>
+            
+            <!-- SQUADRA 2 -->
+            <div class="form-group">
+                <label id="team2Label" for="team2">Seconda squadra:</label>
+                <input type="text" name="team2" id="team2" placeholder="Es: Inter" required>
+            </div>
+            
+            <!-- STAGIONE (VISIBILE SOLO PER L'OPAZIONE 2) -->
+            <div class="form-group" id="seasonField" style="display: none;">
+                <label for="season">Stagione (es: 2021):</label>
+                <input type="text" name="season" id="season" placeholder="Es: 2021">
+            </div>
+            
+            <!-- BOTTONE DI INVIO -->
+            <button type="submit">Analizza</button>
+        </form>
+        
+        <!-- AREA RISULTATI -->
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <!-- JAVASCRIPT PER INTERATTIVITÀ -->
+    <script>
+        // FUNZIONE: Cambia i campi in base all'azione selezionata
+        function toggleFields() {
+            const action = document.getElementById('action').value;
+            const seasonField = document.getElementById('seasonField');
+            const team1Label = document.getElementById('team1Label');
+            const team2Label = document.getElementById('team2Label');
+            
+            if (action === '2') {
+                // Se è "Risultato partita specifica"
+                seasonField.style.display = 'block';
+                team1Label.textContent = 'Squadra di casa:';
+                team2Label.textContent = 'Squadra ospite:';
+            } else {
+                // Se è "Ultimi confronti"
+                seasonField.style.display = 'none';
+                team1Label.textContent = 'Prima squadra:';
+                team2Label.textContent = 'Seconda squadra:';
+            }
+        }
+        
+        // GESTISCE L'INVIO DEL FORM
+        document.getElementById('analysisForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Impedisce il ricaricamento della pagina
+            
+            const formData = new FormData(this);
+            const resultDiv = document.getElementById('result');
+            
+            // Mostra messaggio di caricamento
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<div class="loading">Analisi in corso...</div>';
+            
+            // INVIA I DATI AL SERVER
+            fetch('/analyze', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    // Se c'è errore, mostra in rosso
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = data.error;
+                } else {
+                    // Se successo, mostra risultati
+                    resultDiv.className = 'result';
+                    resultDiv.innerHTML = data.result || 'Nessun risultato trovato';
+                }
+            })
+            .catch(error => {
+                // Errore di connessione
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = 'Errore di connessione: ' + error;
+            });
+        });
+    </script>
+</body>
+</html>
