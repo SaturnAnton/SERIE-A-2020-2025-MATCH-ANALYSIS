@@ -17,7 +17,7 @@ body {
     margin: 0;
     padding: 0;
     /* Sfondo con gradiente colorato invece di grigio piatto */
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-color:#0578FF;
     min-height: 100vh; /* Altezza minima tutta la viewport */
 }
 
@@ -127,4 +127,8 @@ button:hover {
     background: #ffeaa7;
     border-left-color: #fdcb6e;
     color: #d63031;
+}
+
+.intro{
+    text-align: center;
 }
