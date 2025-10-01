@@ -9,6 +9,7 @@ from flask import Flask, request, jsonify, render_template
 import subprocess
 import sys
 import os
+import importlib.util
 
 # INIZIALIZZA L'APP FLASK
 app = Flask(__name__)
@@ -26,7 +27,7 @@ def home():
 @app.route('/analyze', methods=['POST'])
 def analyze():
     """
-    Riceve i dati dal form web, esegue il tuo script Python e restituisce i risultati puliti
+    Riceve i dati dal form web, esegue le funzioni direttamente e restituisce i risultati
     """
     try:
         # LEGGE I DATI INVIATI DAL FORM
@@ -35,45 +36,28 @@ def analyze():
         team2 = request.form['team2']               # Seconda squadra
         season = request.form.get('season', '')     # Stagione (solo per azione 2)
         
-        # PREPARA L'INPUT PER IL TUO SCRIPT ORIGINALE
-        # Simula quello che digiti nel terminale
-        inputs = f"{action}\n{team1}\n{team2}\n"
-        if action == "2":
-            inputs += f"{season}\n"
+        # Importa e usa direttamente le funzioni invece di eseguire subprocess
+        from seriea_analisi import stampaPartite, stampaPartitaSingola
         
-        # ESEGUE IL TUO SCRIPT COME SE FOSSE NEL TERMINALE
-        result = subprocess.run(
-            [sys.executable, "seriea_analisi.py"],              # Comando: python seriea_analisi.py
-            input=inputs,                                       # Input simulato
-            text=True,                                          # Testo invece di bytes
-            capture_output=True,                                # Cattura output e errori
-            cwd=os.path.dirname(os.path.abspath(__file__))      # Esegui dalla cartella corretta
-        )
-        
-        # CONTROLLA SE L'ESECUZIONE È ANDATA BENE
-        if result.returncode == 0:
-            # PULISCE L'OUTPUT: rimuove menu e domande, tiene solo risultati
-            output_lines = result.stdout.split('\n')
-            cleaned_lines = []
+        if action == "1":
+            # Ultimi confronti tra squadre
+            risultati, ha_grafico = stampaPartite(team1, team2)
             
-            for line in output_lines:
-                # Mantiene solo le righe con i risultati delle partite
-                if 'Punteggio finale' in line:
-                    cleaned_lines.append(line.strip())
+            # Prepara la risposta
+            response = {
+                "result": risultati,
+                "has_graph": ha_grafico
+            }
             
-            # PREPARA L'OUTPUT FINALE
-            if cleaned_lines:
-                final_output = '\n'.join(cleaned_lines)
-            else:
-                final_output = "Nessun risultato trovato per i criteri di ricerca"
-                
-            return jsonify({"result": final_output})
         else:
-            # GESTISCE GLI ERRORI
-            error_msg = result.stderr
-            if "No such file or directory" in error_msg:
-                error_msg += "\n\n💡 SUGGERIMENTO: Controlla il percorso del file CSV nel codice!"
-            return jsonify({"error": error_msg})
+            # Partita specifica
+            risultati = stampaPartitaSingola(team1, team2, season)
+            response = {
+                "result": risultati,
+                "has_graph": False
+            }
+            
+        return jsonify(response)
             
     except Exception as e:
         # GESTISCE ECCEZIONI IMPREVISTE
@@ -86,7 +70,3 @@ if __name__ == '__main__':
     non se è importato da altri script
     """
     app.run(debug=True, host='0.0.0.0', port=5000)
-    
-    # debug=True: Ricarica automaticamente quando modifichi i file
-    # host='0.0.0.0': Accessibile da altri dispositivi nella rete
-    # port=5000: Porta su cui ascolta il server

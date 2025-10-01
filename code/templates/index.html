@@ -97,7 +97,17 @@
                 } else {
                     // Se successo, mostra risultati
                     resultDiv.className = 'result';
-                    resultDiv.innerHTML = data.result || 'Nessun risultato trovato';
+                    
+                    let htmlContent = data.result.replace(/\n/g, '<br>');
+                    
+                    // Se c'è un grafico, aggiungi l'immagine
+                    if (data.has_graph) {
+                        // Aggiungi timestamp per evitare cache
+                        const timestamp = new Date().getTime();
+                        htmlContent += `<br><br><img src="/static/grafico.png?t=${timestamp}" alt="Grafico confronto" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">`;
+                    }
+                    
+                    resultDiv.innerHTML = htmlContent;
                 }
             })
             .catch(error => {

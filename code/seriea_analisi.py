@@ -17,6 +17,8 @@ def stampaPartite(sc, sa):
     val_avv = 0
     val_equal = 0
     
+    risultati = []  # Lista per memorizzare i risultati testuali
+    
     riga = f.readline()
     while riga != "":
         new = riga
@@ -45,11 +47,13 @@ def stampaPartite(sc, sa):
 
         squadra_scelta = new.strip()
 
-        if (sc == squadra_scelta and sa == squadra_avversaria) :
-            if(posto == 'Away') :
-                print(data + " " + squadra_avversaria + "-" + squadra_scelta + " Punteggio finale: " + gol_avversari + "-" + gol_squadra)
+        if (sc == squadra_scelta and sa == squadra_avversaria):
+            if(posto == 'Away'):
+                risultato = data + " " + squadra_avversaria + "-" + squadra_scelta + " Punteggio finale: " + gol_avversari + "-" + gol_squadra
             else:
-                print(data + " " + squadra_scelta + "-" + squadra_avversaria + " Punteggio finale: " + gol_squadra + "-" + gol_avversari)
+                risultato = data + " " + squadra_scelta + "-" + squadra_avversaria + " Punteggio finale: " + gol_squadra + "-" + gol_avversari
+            
+            risultati.append(risultato)
             
             if(int(gol_squadra) > int(gol_avversari)):
                 val_sq = val_sq + 1
@@ -62,20 +66,35 @@ def stampaPartite(sc, sa):
 
     closeFile(f)
 
-    y = np.array([val_sq, val_avv, val_equal])
-    labels = [sc, sa, "Pareggio"]
+    # CREA E SALVA IL GRAFICO COME IMMAGINE
+    if val_sq + val_avv + val_equal > 0:
+        y = np.array([val_sq, val_avv, val_equal])
+        labels = [sc, sa, "Pareggio"]
 
-    def make_label(pct, allvals):
-        total = sum(allvals)
-        val = int(round(pct*total/100.0))
-        return f"{val} ({pct:.1f}%)"
+        def make_label(pct, allvals):
+            total = sum(allvals)
+            val = int(round(pct*total/100.0))
+            return f"{val} ({pct:.1f}%)"
 
-    plt.pie(y, labels=labels, autopct=lambda pct: make_label(pct, y))
-    plt.axis('equal')
-    plt.show()
+        plt.figure(figsize=(8, 6))
+        plt.pie(y, labels=labels, autopct=lambda pct: make_label(pct, y))
+        plt.axis('equal')
+        plt.title(f"Confronti tra {sc} e {sa}")
+        
+        # Salva il grafico invece di mostrarlo
+        graph_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "grafico.png")
+        plt.savefig(graph_path)
+        plt.close()  # Chiude la figura per liberare memoria
+        
+        # Restituisce sia i risultati che il percorso del grafico
+        return "\n".join(risultati), True
+    else:
+        return "Nessuna partita trovata", False
 
 def stampaPartitaSingola(sc, sa, stagione):
     f = openFile("matches_serie_A.csv")
+    
+    risultati = []  # Lista per memorizzare i risultati
     
     riga = f.readline()
     while riga != "":
@@ -108,37 +127,45 @@ def stampaPartitaSingola(sc, sa, stagione):
         squadra_scelta = new.strip()
 
         if sc == squadra_scelta and sa == squadra_avversaria and s == stagione and posto == 'Home':
-            print(data + " " + squadra_scelta + "-" + squadra_avversaria + " Punteggio finale: " + gol_squadra + "-" + gol_avversari)
+            risultato = data + " " + squadra_scelta + "-" + squadra_avversaria + " Punteggio finale: " + gol_squadra + "-" + gol_avversari
+            risultati.append(risultato)
 
         riga = f.readline()
 
     closeFile(f)
+    
+    return "\n".join(risultati) if risultati else "Nessuna partita trovata"
 
-
-print("Seleziona l'azione che vuoi eseguire")
-print("1 - Guarda gli ultimi confronti tra le due squadre selezionate\n2 - Dimmi quanto è finita una determinata partita selezionata")
-select = int(input())
-
-while select != 1 and select != 2:
-    print("Il numero selezionato non è giusto. Riprova")
+# MODIFICA: Non eseguire più automaticamente, ma solo se chiamato direttamente
+if __name__ == "__main__":
+    print("Seleziona l'azione che vuoi eseguire")
+    print("1 - Guarda gli ultimi confronti tra le due squadre selezionate\n2 - Dimmi quanto è finita una determinata partita selezionata")
     select = int(input())
 
-if select == 1:
-    print("Inserisci la prima squadra")
-    sq1 = input()
+    while select != 1 and select != 2:
+        print("Il numero selezionato non è giusto. Riprova")
+        select = int(input())
 
-    print("Inserisci la seconda squadra")
-    sq2 = input()
+    if select == 1:
+        print("Inserisci la prima squadra")
+        sq1 = input()
 
-    stampaPartite(sq1, sq2)
-else:
-    print("Inserisci la squadra di casa")
-    sq1 = input()
+        print("Inserisci la seconda squadra")
+        sq2 = input()
 
-    print("Inserisci la squadra ospite")
-    sq2 = input()
+        risultati, ha_grafico = stampaPartite(sq1, sq2)
+        print(risultati)
+        if ha_grafico:
+            print("\n[GRAFICO GENERATO]")
+    else:
+        print("Inserisci la squadra di casa")
+        sq1 = input()
 
-    print("Seleziona la stagione (N.B Nel mettere la stagione si conta la seconda data)\n Esempio: Stagione 2020-2021 --> 2021")
-    season = input()
+        print("Inserisci la squadra ospite")
+        sq2 = input()
 
-    stampaPartitaSingola(sq1, sq2, season)
+        print("Seleziona la stagione (N.B Nel mettere la stagione si conta la seconda data)\n Esempio: Stagione 2020-2021 --> 2021")
+        season = input()
+
+        risultati = stampaPartitaSingola(sq1, sq2, season)
+        print(risultati)
