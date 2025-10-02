@@ -16,6 +16,8 @@ def stampaPartite(sc, sa):
     val_sq = 0
     val_avv = 0
     val_equal = 0
+    count = 0
+    set = 0
     
     risultati = []  # Lista per memorizzare i risultati testuali
     
@@ -42,19 +44,38 @@ def stampaPartite(sc, sa):
         
         while i < 28:
             pos = new.find(',')
+            if i == 26:
+                s = new[pos+1:pos+5:1]
             new = new[pos+1::1]
             i += 1
 
         squadra_scelta = new.strip()
 
+
         if (sc == squadra_scelta and sa == squadra_avversaria):
-            if(posto == 'Away'):
-                risultato = data + " " + squadra_avversaria + "-" + squadra_scelta + " Punteggio finale: " + gol_avversari + "-" + gol_squadra
+            if count == 0:
+                stagione = "STAGIONE " + str(int(s)-1) + ' - ' + s
+                risultati.append(stagione)
+                count += 1
+           
             else:
-                risultato = data + " " + squadra_scelta + "-" + squadra_avversaria + " Punteggio finale: " + gol_squadra + "-" + gol_avversari
+                count = 0
+            
+            
+            if(posto == 'Away'):
+                risultato = data + " " + squadra_avversaria + ' ' + gol_avversari + " - " + squadra_scelta + " " + gol_squadra
+                set += 1
+            else:
+                risultato = data + " " + squadra_scelta + ' ' + gol_squadra + " - " + squadra_avversaria + " " + gol_avversari
+                set += 1
             
             risultati.append(risultato)
             
+            if(set == 2):
+                spazio = ' \n'
+                risultati.append(spazio)
+                set = 0
+
             if(int(gol_squadra) > int(gol_avversari)):
                 val_sq = val_sq + 1
             elif(int(gol_avversari) > int(gol_squadra)):
@@ -127,7 +148,9 @@ def stampaPartitaSingola(sc, sa, stagione):
         squadra_scelta = new.strip()
 
         if sc == squadra_scelta and sa == squadra_avversaria and s == stagione and posto == 'Home':
-            risultato = data + " " + squadra_scelta + "-" + squadra_avversaria + " Punteggio finale: " + gol_squadra + "-" + gol_avversari
+            st = "STAGIONE " + str(int(s)-1) + ' - ' + s
+            risultati.append(st)
+            risultato = data + " " + squadra_scelta + ' ' + gol_squadra + " - " + squadra_avversaria + " " + gol_avversari
             risultati.append(risultato)
 
         riga = f.readline()

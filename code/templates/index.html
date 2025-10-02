@@ -15,33 +15,36 @@
         
         <!-- FORM PRINCIPALE -->
         <form id="analysisForm">
-            <!-- SELEZIONE AZIONE -->
-            <div class="form-group">
-                <label for="action">Azione:</label>
-                <select name="action" id="action" onchange="toggleFields()">
-                    <option value="1">Ultimi confronti tra squadre</option>
-                    <option value="2">Risultato partita specifica</option>
-                </select>
+            <!-- CONTENITORE CAMPI -->
+            <div class="form-container">
+                <!-- SELEZIONE AZIONE -->
+                <div class="form-group">
+                    <label for="action">Azione:</label>
+                    <select name="action" id="action" onchange="toggleFields()">
+                        <option value="1">Ultimi confronti tra squadre</option>
+                        <option value="2">Risultato partita specifica</option>
+                    </select>
+                </div>
+                
+                <!-- SQUADRA 1 -->
+                <div class="form-group">
+                    <label id="team1Label" for="team1">Prima squadra:</label>
+                    <input type="text" name="team1" id="team1" placeholder="Es: Milan" required>
+                </div>
+                
+                <!-- SQUADRA 2 -->
+                <div class="form-group">
+                    <label id="team2Label" for="team2">Seconda squadra:</label>
+                    <input type="text" name="team2" id="team2" placeholder="Es: Inter" required>
+                </div>
+                
+                <!-- STAGIONE (VISIBILE SOLO PER OPZIONE 2) -->
+                <div class="form-group" id="seasonField" style="display: none;">
+                    <label for="season">Stagione (es: 2021):</label>
+                    <input type="text" name="season" id="season" placeholder="Es: 2021">
+                </div>
             </div>
-            
-            <!-- SQUADRA 1 -->
-            <div class="form-group">
-                <label id="team1Label" for="team1">Prima squadra:</label>
-                <input type="text" name="team1" id="team1" placeholder="Es: Milan" required>
-            </div>
-            
-            <!-- SQUADRA 2 -->
-            <div class="form-group">
-                <label id="team2Label" for="team2">Seconda squadra:</label>
-                <input type="text" name="team2" id="team2" placeholder="Es: Inter" required>
-            </div>
-            
-            <!-- STAGIONE (VISIBILE SOLO PER L'OPAZIONE 2) -->
-            <div class="form-group" id="seasonField" style="display: none;">
-                <label for="season">Stagione (es: 2021):</label>
-                <input type="text" name="season" id="season" placeholder="Es: 2021">
-            </div>
-            
+
             <!-- BOTTONE DI INVIO -->
             <button type="submit">Analizza</button>
         </form>
