@@ -159,13 +159,53 @@ def stampaPartitaSingola(sc, sa, stagione):
     
     return "\n".join(risultati) if risultati else "Nessuna partita trovata"
 
+def stampaPuntiInClassifica(squad,stagiones):
+    f = openFile("matches_serie_A.csv")
+    
+    result = 0
+    
+    riga = f.readline()
+    while riga != "":
+        new = riga
+        i = 0
+
+        while i < 10:
+            pos = new.find(',')
+            if i == 8:
+                gol_squadra = new[0:pos:1]
+            elif i == 9:
+                gol_avversari = new[0:pos:1]
+            new = new[pos+1::1]
+            i += 1
+
+        while i < 28:
+            pos = new.find(',')
+            if i == 26:
+                s = new[pos+1:pos+5:1]
+            new = new[pos+1::1]
+            i += 1
+
+        squadra_scelta = new.strip()
+
+        if(squad == squadra_scelta and s == stagiones):
+            if(gol_squadra > gol_avversari):
+                result += 3
+            elif(gol_avversari == gol_squadra):
+                result += 1
+
+        riga = f.readline()
+
+    closeFile(f)
+
+    return str(result)
+
 # MODIFICA: Non eseguire più automaticamente, ma solo se chiamato direttamente
 if __name__ == "__main__":
     print("Seleziona l'azione che vuoi eseguire")
-    print("1 - Guarda gli ultimi confronti tra le due squadre selezionate\n2 - Dimmi quanto è finita una determinata partita selezionata")
+    print("1 - Guarda gli ultimi confronti tra le due squadre selezionate\n2 - Dimmi quanto è finita una determinata partita selezionata\n3 - Punti di una squadra in una determinata stagione")
     select = int(input())
 
-    while select != 1 and select != 2:
+    while select != 1 and select != 2 and select != 3:
         print("Il numero selezionato non è giusto. Riprova")
         select = int(input())
 
@@ -180,7 +220,7 @@ if __name__ == "__main__":
         print(risultati)
         if ha_grafico:
             print("\n[GRAFICO GENERATO]")
-    else:
+    elif select == 2:
         print("Inserisci la squadra di casa")
         sq1 = input()
 
@@ -191,4 +231,14 @@ if __name__ == "__main__":
         season = input()
 
         risultati = stampaPartitaSingola(sq1, sq2, season)
+        print(risultati)
+    else:
+        print("Inserisci la squadra")
+        sq1 = input()
+
+        print("Seleziona la stagione (N.B Nel mettere la stagione si conta la seconda data)\n Esempio: Stagione 2020-2021 --> 2021")
+        season = input()
+
+        risultati = stampaPuntiInClassifica(sq1,season)
+
         print(risultati)

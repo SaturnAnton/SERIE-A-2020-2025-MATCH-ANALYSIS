@@ -23,6 +23,7 @@
                     <select name="action" id="action" onchange="toggleFields()">
                         <option value="1">Ultimi confronti tra squadre</option>
                         <option value="2">Risultato partita specifica</option>
+                        <option value="3">Punti in una determinata stagione</option>
                     </select>
                 </div>
                 
@@ -33,7 +34,7 @@
                 </div>
                 
                 <!-- SQUADRA 2 -->
-                <div class="form-group">
+                <div class="form-group" id="team2Field">
                     <label id="team2Label" for="team2">Seconda squadra:</label>
                     <input type="text" name="team2" id="team2" placeholder="Es: Inter" required>
                 </div>
@@ -60,20 +61,28 @@
             const action = document.getElementById('action').value;
             const seasonField = document.getElementById('seasonField');
             const team1Label = document.getElementById('team1Label');
-            const team2Label = document.getElementById('team2Label');
-            
+            const team2Field = document.getElementById('team2Field'); // div che contiene etichetta + input
+
             if (action === '2') {
-                // Se è "Risultato partita specifica"
+                // Risultato partita specifica
                 seasonField.style.display = 'block';
                 team1Label.textContent = 'Squadra di casa:';
-                team2Label.textContent = 'Squadra ospite:';
-            } else {
-                // Se è "Ultimi confronti"
+                team2Field.style.display = 'block';
+                document.getElementById('team2Label').textContent = 'Squadra ospite:';
+            } else if (action === '1') {
+                // Ultimi confronti
                 seasonField.style.display = 'none';
                 team1Label.textContent = 'Prima squadra:';
-                team2Label.textContent = 'Seconda squadra:';
+                team2Field.style.display = 'block';
+                document.getElementById('team2Label').textContent = 'Seconda squadra:';
+            } else if (action === '3') {
+                // Punti di una squadra in una stagione
+                seasonField.style.display = 'block';
+                team1Label.textContent = 'Squadra:';
+                team2Field.style.display = 'none'; // NASCONDI completamente seconda squadra
             }
         }
+
         
         // GESTISCE L'INVIO DEL FORM
         document.getElementById('analysisForm').addEventListener('submit', function(e) {

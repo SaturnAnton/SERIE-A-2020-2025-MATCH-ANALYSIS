@@ -37,7 +37,7 @@ def analyze():
         season = request.form.get('season', '')     # Stagione (solo per azione 2)
         
         # Importa e usa direttamente le funzioni invece di eseguire subprocess
-        from seriea_analisi import stampaPartite, stampaPartitaSingola
+        from seriea_analisi import stampaPartite, stampaPartitaSingola, stampaPuntiInClassifica
         
         if action == "1":
             # Ultimi confronti tra squadre
@@ -49,9 +49,16 @@ def analyze():
                 "has_graph": ha_grafico
             }
             
-        else:
+        elif action == "2":
             # Partita specifica
             risultati = stampaPartitaSingola(team1, team2, season)
+            response = {
+                "result": risultati,
+                "has_graph": False
+            }
+        
+        else:
+            risultati = stampaPuntiInClassifica(team1,season)
             response = {
                 "result": risultati,
                 "has_graph": False
