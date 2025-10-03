@@ -112,14 +112,24 @@
                     
                     let htmlContent = data.result.replace(/\n/g, '<br>');
                     
-                    // Se c'è un grafico, aggiungi l'immagine
+                    // Se c'è un grafico, crea un layout a due colonne
                     if (data.has_graph) {
                         // Aggiungi timestamp per evitare cache
                         const timestamp = new Date().getTime();
-                        htmlContent += `<br><br><img src="/static/grafico.png?t=${timestamp}" alt="Grafico confronto" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">`;
+                        resultDiv.innerHTML = `
+                            <div class="results-container">
+                                <div class="text-results">
+                                    ${htmlContent}
+                                </div>
+                                <div class="graph-container">
+                                    <img src="/static/grafico.png?t=${timestamp}" alt="Grafico confronto" class="graph-image">
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        // Se non c'è grafico, mantieni il layout normale
+                        resultDiv.innerHTML = htmlContent;
                     }
-                    
-                    resultDiv.innerHTML = htmlContent;
                 }
             })
             .catch(error => {

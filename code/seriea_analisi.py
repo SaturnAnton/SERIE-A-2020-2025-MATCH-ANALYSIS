@@ -2,10 +2,11 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def openFile(filename):
     base_path = os.path.dirname(os.path.abspath(__file__))
     filepath = os.path.join(base_path, "..", "data", filename)
-    return open(filepath, "r")
+    return open(filepath, "r", encoding="utf-8", errors="ignore")
 
 def closeFile(fil):
     fil.close()
@@ -97,14 +98,15 @@ def stampaPartite(sc, sa):
             val = int(round(pct*total/100.0))
             return f"{val} ({pct:.1f}%)"
 
-        plt.figure(figsize=(8, 6))
-        plt.pie(y, labels=labels, autopct=lambda pct: make_label(pct, y))
+        # AUMENTATE le dimensioni del grafico
+        plt.figure(figsize=(12, 8))  # Aumentato da (8,6) a (12,8)
+        plt.pie(y, labels=labels, autopct=lambda pct: make_label(pct, y), textprops={'fontsize': 14})
         plt.axis('equal')
-        plt.title(f"Confronti tra {sc} e {sa}")
+        plt.title(f"Confronti tra {sc} e {sa}", fontsize=16, fontweight='bold')
         
         # Salva il grafico invece di mostrarlo
         graph_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "grafico.png")
-        plt.savefig(graph_path)
+        plt.savefig(graph_path, dpi=100, bbox_inches='tight')  # Aumentato DPI per migliore qualità
         plt.close()  # Chiude la figura per liberare memoria
         
         # Restituisce sia i risultati che il percorso del grafico
