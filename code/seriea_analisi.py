@@ -199,7 +199,7 @@ def stampaPuntiInClassifica(squad,stagiones):
 
     closeFile(f)
 
-    return str(result)
+    return "La squadra " + squad + " nella stagione " + str(int(stagiones)-1) + ' - ' + stagiones+ " ha totalizzato " + str(result) + " punti"
 
 # MODIFICA: Non eseguire più automaticamente, ma solo se chiamato direttamente
 if __name__ == "__main__":
