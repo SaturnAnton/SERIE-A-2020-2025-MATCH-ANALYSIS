@@ -1,79 +1,57 @@
-"""
-FILE: web_interface.py
-SCOPO: Creare un'interfaccia web per il codice esistente senza modificarlo
-TECNOLOGIE: Flask (micro web framework Python)
-CHE COSA FA: Prende l'input dal browser, esegue il tuo script, e mostra i risultati
-"""
-
-from flask import Flask, request, jsonify, render_template
-import subprocess
+import io
 import sys
-import os
-import importlib.util
+from flask import Flask, request, jsonify, render_template
+from seriea_analisi import (
+    stampaPartite,
+    stampaPartitaSingola,
+    stampaPuntiInClassifica,
+    classificaStagione
+)
 
-# INIZIALIZZA L'APP FLASK
 app = Flask(__name__)
 
-# ROTTA PRINCIPALE: Quando si visita http://localhost:5000/
 @app.route('/')
 def home():
-    """
-    Mostra la pagina HTML principale
-    Non restituisce più HTML direttamente, ma usa un template
-    """
     return render_template('index.html')
 
-# ROTTA PER L'ANALISI: Gestisce i dati inviati dal form
 @app.route('/analyze', methods=['POST'])
 def analyze():
-    """
-    Riceve i dati dal form web, esegue le funzioni direttamente e restituisce i risultati
-    """
     try:
-        # LEGGE I DATI INVIATI DAL FORM
-        action = request.form['action']             # 1 o 2
-        team1 = request.form['team1']               # Prima squadra
-        team2 = request.form['team2']               # Seconda squadra
-        season = request.form.get('season', '')     # Stagione (solo per azione 2)
-        
-        # Importa e usa direttamente le funzioni invece di eseguire subprocess
-        from seriea_analisi import stampaPartite, stampaPartitaSingola, stampaPuntiInClassifica
-        
+        action = request.form['action']
+        team1 = request.form.get('team1', '')
+        team2 = request.form.get('team2', '')
+        season = request.form.get('season', '')
+
+        buffer = io.StringIO()
+        sys_stdout_originale = sys.stdout
+        sys.stdout = buffer
+
+        ha_grafico = False
+        output_stampato = ""
+
         if action == "1":
-            # Ultimi confronti tra squadre
             risultati, ha_grafico = stampaPartite(team1, team2)
-            
-            # Prepara la risposta
-            response = {
-                "result": risultati,
-                "has_graph": ha_grafico
-            }
-            
+            output_stampato = risultati
         elif action == "2":
-            # Partita specifica
-            risultati = stampaPartitaSingola(team1, team2, season)
-            response = {
-                "result": risultati,
-                "has_graph": False
-            }
-        
-        else:
-            risultati = stampaPuntiInClassifica(team1,season)
-            response = {
-                "result": risultati,
-                "has_graph": False
-            }
-            
-        return jsonify(response)
-            
+            output_stampato = stampaPartitaSingola(team1, team2, season)
+        elif action == "3":
+            output_stampato = stampaPuntiInClassifica(team1, season)
+        else:  # azione 4
+            classificaStagione(season)  # stampa direttamente
+            # output_stampato sarà tutto ciò che è stato stampato
+            output_stampato = buffer.getvalue().strip()
+
+        sys.stdout = sys_stdout_originale
+
+        # fallback se output_stampato è vuoto
+        if not output_stampato:
+            output_stampato = "Nessun risultato disponibile"
+
+        return jsonify({"result": output_stampato, "has_graph": ha_grafico})
+
     except Exception as e:
-        # GESTISCE ECCEZIONI IMPREVISTE
+        sys.stdout = sys.__stdout__
         return jsonify({"error": str(e)})
 
-# AVVIA IL SERVER
 if __name__ == '__main__':
-    """
-    Questo blocco viene eseguito solo se il file è runnato direttamente,
-    non se è importato da altri script
-    """
     app.run(debug=True, host='0.0.0.0', port=5000)

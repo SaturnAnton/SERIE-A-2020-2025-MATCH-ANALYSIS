@@ -24,6 +24,7 @@
                         <option value="1">Ultimi confronti tra squadre</option>
                         <option value="2">Risultato partita specifica</option>
                         <option value="3">Punti in una determinata stagione</option>
+                        <option value="4">Classifica in una determinata stagione</option>
                     </select>
                 </div>
                 
@@ -56,88 +57,89 @@
 
     <!-- JAVASCRIPT PER INTERATTIVITÀ -->
     <script>
-        // FUNZIONE: Cambia i campi in base all'azione selezionata
-        function toggleFields() {
-            const action = document.getElementById('action').value;
-            const seasonField = document.getElementById('seasonField');
-            const team1Label = document.getElementById('team1Label');
-            const team2Field = document.getElementById('team2Field'); // div che contiene etichetta + input
+    // FUNZIONE: Cambia i campi in base all'azione selezionata
+    function toggleFields() {
+        const action = document.getElementById('action').value;
+        const seasonField = document.getElementById('seasonField');
+        const team1Field = document.getElementById('team1').closest('.form-group'); // div completo
+        const team2Field = document.getElementById('team2Field'); // div completo per seconda squadra
+        const team1Label = document.getElementById('team1Label');
+        const team2Label = document.getElementById('team2Label');
 
-            if (action === '2') {
-                // Risultato partita specifica
-                seasonField.style.display = 'block';
-                team1Label.textContent = 'Squadra di casa:';
-                team2Field.style.display = 'block';
-                document.getElementById('team2Label').textContent = 'Squadra ospite:';
-            } else if (action === '1') {
-                // Ultimi confronti
-                seasonField.style.display = 'none';
-                team1Label.textContent = 'Prima squadra:';
-                team2Field.style.display = 'block';
-                document.getElementById('team2Label').textContent = 'Seconda squadra:';
-            } else if (action === '3') {
-                // Punti di una squadra in una stagione
-                seasonField.style.display = 'block';
-                team1Label.textContent = 'Squadra:';
-                team2Field.style.display = 'none'; // NASCONDI completamente seconda squadra
-            }
+        if (action === '1') {
+            // Ultimi confronti tra squadre
+            seasonField.style.display = 'none';
+            team1Field.style.display = 'block';
+            team2Field.style.display = 'block';
+            team1Label.textContent = 'Prima squadra:';
+            team2Label.textContent = 'Seconda squadra:';
+        } 
+        else if (action === '2') {
+            // Risultato partita specifica
+            seasonField.style.display = 'block';
+            team1Field.style.display = 'block';
+            team2Field.style.display = 'block';
+            team1Label.textContent = 'Squadra di casa:';
+            team2Label.textContent = 'Squadra ospite:';
+        } 
+        else if (action === '3') {
+            // Punti in una determinata stagione
+            seasonField.style.display = 'block';
+            team1Field.style.display = 'block';
+            team2Field.style.display = 'none';
+            team1Label.textContent = 'Squadra:';
+        } 
+        else if (action === '4') {
+            // Classifica in una determinata stagione → SOLO stagione
+            seasonField.style.display = 'block';
+            team1Field.style.display = 'none';
+            team2Field.style.display = 'none';
         }
+    }
 
-        
-        // GESTISCE L'INVIO DEL FORM
-        document.getElementById('analysisForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Impedisce il ricaricamento della pagina
-            
-            const formData = new FormData(this);
-            const resultDiv = document.getElementById('result');
-            
-            // Mostra messaggio di caricamento
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = '<div class="loading">Analisi in corso...</div>';
-            
-            // INVIA I DATI AL SERVER
-            fetch('/analyze', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    // Se c'è errore, mostra in rosso
-                    resultDiv.className = 'result error';
-                    resultDiv.innerHTML = data.error;
-                } else {
-                    // Se successo, mostra risultati
-                    resultDiv.className = 'result';
-                    
-                    let htmlContent = data.result.replace(/\n/g, '<br>');
-                    
-                    // Se c'è un grafico, crea un layout a due colonne
-                    if (data.has_graph) {
-                        // Aggiungi timestamp per evitare cache
-                        const timestamp = new Date().getTime();
-                        resultDiv.innerHTML = `
-                            <div class="results-container">
-                                <div class="text-results">
-                                    ${htmlContent}
-                                </div>
-                                <div class="graph-container">
-                                    <img src="/static/grafico.png?t=${timestamp}" alt="Grafico confronto" class="graph-image">
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        // Se non c'è grafico, mantieni il layout normale
-                        resultDiv.innerHTML = htmlContent;
-                    }
-                }
-            })
-            .catch(error => {
-                // Errore di connessione
+    // GESTIONE INVIO FORM
+    document.getElementById('analysisForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // evita ricaricamento
+        const formData = new FormData(this);
+        const resultDiv = document.getElementById('result');
+
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '<div class="loading">Analisi in corso...</div>';
+
+        fetch('/analyze', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
                 resultDiv.className = 'result error';
-                resultDiv.innerHTML = 'Errore di connessione: ' + error;
-            });
+                resultDiv.innerHTML = data.error;
+            } else {
+                resultDiv.className = 'result';
+                let htmlContent = `<pre>${data.result}</pre>`;
+                resultDiv.innerHTML = htmlContent;
+
+                if (data.has_graph) {
+                    const timestamp = new Date().getTime();
+                    resultDiv.innerHTML = `
+                        <div class="results-container">
+                            <div class="text-results">${htmlContent}</div>
+                            <div class="graph-container">
+                                <img src="/static/grafico.png?t=${timestamp}" alt="Grafico confronto" class="graph-image">
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = htmlContent;
+                }
+            }
+        })
+        .catch(error => {
+            resultDiv.className = 'result error';
+            resultDiv.innerHTML = 'Errore di connessione: ' + error;
         });
-    </script>
+    });
+</script>
 </body>
 </html>
